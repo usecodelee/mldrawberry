@@ -1,6 +1,6 @@
 <template>
   <section>
-    <img src="../img/hat1.png" alt="" ref="hatimg" v-show="false">
+    <img src="../img/berry.png" alt="" ref="hatimg" v-show="false">
     <input v-show="false" ref="fileInput" type='file' id="file-input" @change="readURL" accept="image/*" />
     <div class="ml-main">
       <img src="../img/2.jpg" alt="" ref="inputImg" v-show="originImg">
@@ -19,19 +19,15 @@
   </section>
 </template>
 <script>
-import * as faceapi from 'face-api.js';
-import { userConfig } from '../config/config';
-import { getHatInfo } from '../utils/utils_with_face_width';
-import { drawing } from '../utils/drawing';
-const MODEL_PATH = '/models';
-const SSD_MOBILENETV1 = 'ssd_mobilenetv1';
-const TINY_FACE_DETECTOR = 'tiny_face_detector';
-var selectedFaceDetector = SSD_MOBILENETV1;
+import * as faceapi from "face-api.js";
+import { getBerry } from "../utils/utils_calculate";
+import { draw } from "../utils/utils_draw";
 export default {
+  name: "face",
   data() {
     return {
       loading: true,
-      loading_font: '',
+      loading_font: "",
       originImg: true,
       saveBtn: false
     };
@@ -42,20 +38,20 @@ export default {
     },
     save() {
       let canvas = this.$refs.overlay;
-      const dataUrl = canvas.toDataURL('image/png');
-      this.saveFile(dataUrl, 'avatar.png');
+      const dataUrl = canvas.toDataURL("image/png");
+      this.saveFile(dataUrl, "avatar.png");
     },
     saveFile(data, filename) {
       const save_link = document.createElementNS(
-        'http://www.w3.org/1999/xhtml',
-        'a'
+        "http://www.w3.org/1999/xhtml",
+        "a"
       );
       save_link.href = data;
       save_link.download = filename;
 
-      const event = document.createEvent('MouseEvents');
+      const event = document.createEvent("MouseEvents");
       event.initMouseEvent(
-        'click',
+        "click",
         true,
         false,
         window,
@@ -82,7 +78,7 @@ export default {
         };
         reader.readAsDataURL(input.target.files[0]);
       } else {
-        alert('错误');
+        alert("错误");
       }
     },
     isFaceDetectionModelLoaded() {
@@ -90,50 +86,54 @@ export default {
     },
     async updateResults() {
       this.loading = true;
-      this.loading_font = '正在识别图像···';
+      this.loading_font = "正在识别图像···";
+      let input = this.$refs.inputImg;
       let canvas = this.$refs.overlay;
-      let inputImg = this.$refs.inputImg;
-      if (!this.isFaceDetectionModelLoaded()) {
-        return;
-      }
-      const results = await faceapi
-        .detectAllFaces(inputImg)
-        .withFaceLandmarks();
-      faceapi.matchDimensions(canvas, inputImg);
-      const resizedResults = faceapi.resizeResults(results, inputImg);
-      const info = getHatInfo(resizedResults);
-      faceapi.draw.drawFaceLandmarks(canvas, resizedResults); // 直接画出识别的的特征点
+      const minConfidence = 0.8;
+      let fullFaceDescriptions = await faceapi
+        .detectAllFaces(input)
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+      faceapi.matchDimensions(canvas, input); // 让画布和图片一样大
+      const displaySize = { width: input.width, height: input.height };
+      const resizedDetections = faceapi.resizeResults(
+        fullFaceDescriptions,
+        displaySize
+      );
+      // const jawOutline = resizedDetections[0].landmarks.getJawOutline(); // 脸颊是从左往右 17个点
+      // const nose = resizedDetections[0].landmarks.getNose(); // 鼻子是从上往下画的 9个点
+      // const mouth = resizedDetections[0].landmarks.getMouth(); //嘴巴分 20个点 上嘴唇8个点 第九个是嘴唇最下面
+      // const leftEye = resizedDetections[0].landmarks.getLeftEye(); //左眼 6个点 从左往右
+      // const rightEye = resizedDetections[0].landmarks.getRightEye(); //右眼 6个点 从左往右
+      // const leftEyeBbrow = resizedDetections[0].landmarks.getLeftEyeBrow(); //左眉毛 5个点 从左往右
+      // const rightEyeBrow = resizedDetections[0].landmarks.getRightEyeBrow(); //右眉毛 5个点 从左往右
+      // let ctx=canvas.getContext("2d");
+      // faceapi.draw.drawContour(ctx, rightEyeBrow.slice(0,2),false);
+      // faceapi.draw.drawDetections(canvas, resizedDetections); // 画框
+      // faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // 画点
+      const info = getBerry(resizedDetections);
       let hatUrl = this.$refs.hatimg.src;
-      this.loading_font = '正在绘制图像···';
+      this.loading_font = "正在绘制图像···";
       this.loading = false;
-      this.originImg = false;
-      drawing(
+      draw(
         canvas,
         {
           info,
-          imgSrc: inputImg.src,
+          imgSrc: input.src,
           width: canvas.width,
           height: canvas.height
         },
         hatUrl
       );
+      this.originImg = false;
       this.saveBtn = true;
     },
-    getCurrentFaceDetectionNet() {
-      if (selectedFaceDetector === SSD_MOBILENETV1) {
-        return faceapi.nets.ssdMobilenetv1;
-      }
-      if (selectedFaceDetector === TINY_FACE_DETECTOR) {
-        return faceapi.nets.tinyFaceDetector;
-      }
-    },
     async run() {
-      this.loading_font = '正在载入模型···';
-      // 初始化face-api 这里使用ssd moblile
-      await this.getCurrentFaceDetectionNet().load(MODEL_PATH);
-      // 加载Landmark模型
-      await faceapi.loadFaceLandmarkModel(MODEL_PATH);
-      // 更新数据
+      this.loading_font = "正在载入模型···";
+      const MODEL_URL = "/models";
+      await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
+      await faceapi.loadFaceLandmarkModel(MODEL_URL);
+      await faceapi.loadFaceRecognitionModel(MODEL_URL);
       this.updateResults();
     }
   },
@@ -150,7 +150,7 @@ export default {
   position: absolute;
   left: 50%;
   top: 45%;
-  overflow: hidden;
+  // overflow: hidden;
   transform: translate(-50%, -50%);
   img {
     width: auto;
