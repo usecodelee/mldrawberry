@@ -1,16 +1,14 @@
-@[toc]
-
 # 前端机器学习--识别人脸在脸颊上画草莓
 
 ## 一、最终结果
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2019122909442879.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Nhb21hZ2U=,size_16,color_FFFFFF,t_70 =300x)![在这里插入图片描述](https://img-blog.csdnimg.cn/20191229094248395.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Nhb21hZ2U=,size_16,color_FFFFFF,t_70 =300x)
+![](https://github.com/usecodelee/mldrawberry/blob/master/blog/%E5%B1%8F%E5%B9%95%E5%BD%95%E5%88%B62019-12-2911%20(1).gif)
 急性子想直接食用的点这个：**[源码地址](https://github.com/usecodelee/mldrawberry)**
 ## 二、原理
 
-要在用户上传的人脸上画草莓，会面临几个问题：  
-1. 在哪儿画？
-2. 画多大？
-3. 草莓的角度和脸的角度是否一致？
+要在用户上传的人脸上画草莓，会面临几个问题：    
+1. 在哪儿画？  
+2. 画多大？  
+3. 草莓的角度和脸的角度是否一致？  
 
 基于这些问题，就不得不使用机器学习来解决了！
 
@@ -117,13 +115,13 @@ faceapi.draw.drawDetections(canvas, resizedDetections); // 画框
 faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // 画点
 ```
 画出来的结果如图：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20191229104446743.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Nhb21hZ2U=,size_16,color_FFFFFF,t_70#pic_center =500x)
+![在这里插入图片描述](https://github.com/usecodelee/mldrawberry/blob/master/blog/6.png)
 #### (2)获取草莓位置
 草莓的位置获取，先看下面这张图：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20191229112530317.jpeg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Nhb21hZ2U=,size_16,color_FFFFFF,t_70#pic_center =500x)
+![在这里插入图片描述](https://github.com/usecodelee/mldrawberry/blob/master/blog/8.jpeg)
 先比较左右黄色和绿色两条线的长度，哪边长就画在哪边（考虑可能照片是侧着脸的），具体的位置左右不一样，右边绿色的线直接从线的中点开始画，而左边黄色的线则是在线的中点再往左边偏移草莓宽度的一半开始画。
 大概如图：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20191229113124207.jpeg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Nhb21hZ2U=,size_16,color_FFFFFF,t_70#pic_center =500x)
+![在这里插入图片描述](https://github.com/usecodelee/mldrawberry/blob/master/blog/9.jpeg)
 所以是先获取点32和点16的距离，再获取中点：
 ```javascript
 //  获取两点之间距离
