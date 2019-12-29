@@ -81,9 +81,6 @@ export default {
         alert("错误");
       }
     },
-    isFaceDetectionModelLoaded() {
-      return !!this.getCurrentFaceDetectionNet().params;
-    },
     async updateResults() {
       this.loading = true;
       this.loading_font = "正在识别图像···";
@@ -159,6 +156,9 @@ export default {
     max-height: 100%;
   }
   canvas {
+    // position: absolute;
+    // left: 0;
+    // top: 0;
     width: auto;
     height: auto;
     max-width: 100%;
