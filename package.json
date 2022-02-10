@@ -15,7 +15,7 @@
     "@vue/cli-service": "^4.1.0",
     "cssnano": "^4.1.10",
     "face-api.js": "^0.22.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "^7.0.0",
     "postcss-aspect-ratio-mini": "^1.0.1",
     "postcss-cssnext": "^3.1.0",
     "postcss-import": "^12.0.1",
